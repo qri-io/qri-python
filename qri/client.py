@@ -154,9 +154,9 @@ class QriDataset(object):
 
 def load_ds(name):
 	""" Loads a dataset from a qri node """
-	info, err = _get_ds_info(name)
-	if err != "":
-		raise Exception("error: {}".format(err))
+	info = _get_ds_info(name)
+	# if err != "":
+	# 	raise Exception("error: {}".format(err))
 	info["name"] = name
 	return QriDataset(**info)
 

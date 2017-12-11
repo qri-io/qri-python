@@ -9,6 +9,7 @@ import shlex
 import sys
 from collections import OrderedDict
 import csv
+import time
 
 if sys.version_info[0] < 3: 
     from StringIO import StringIO
@@ -19,13 +20,29 @@ else:
 _HASH_PATTERN = re.compile("^\/\w+\/(\w*)\/dataset\.json")
 _TMP_TABLE_PATH = "/tmp/tmp.csv"
 _TMP_META_PATH = "/tmp/meta_tmp.json"
+_MAX_ATTEMPTS = 10
+_DELAY = .1
+
+
+#------------------------------------------------------------------
+
+def _shell_exec_once(command):
+	proc = Popen(shlex.split(command), stdin=PIPE, stdout=PIPE, stderr=PIPE)
+	stdoutdata, err = proc.communicate()
+	if err != "":
+		raise Exception(err)
+	return stdoutdata
 
 def _shell_exec(command):
-		proc = Popen(shlex.split(command), stdin=PIPE, stdout=PIPE, stderr=PIPE)
-		stdoutdata, err = proc.communicate()
-		if err != "":
-			raise Exception(err)
-		return stdoutdata
+	stdoutdata = _shell_exec_once(command)
+	for _ in range(_MAX_ATTEMPTS - 1):
+		if "error" not in stdoutdata[:15]:
+			break
+		time.sleep(_DELAY)
+		stdoutdata = _shell_exec_once(command)
+	return stdoutdata
+
+#------------------------------------------------------------------
 
 def _list_ds():
 	""" helper function for getting a list of datasets on your qri node"""
@@ -35,7 +52,7 @@ def _list_ds():
 	return names_and_hashes
 
 def _get_name_from_hash(_hash):
-	""" Utility function to get a dataset's name from its hash"""
+	""" helper function to get a dataset's name from its hash"""
 	names_and_hashes = _list_ds()
 	full_hash_lookup = {h: n for n, h in names_and_hashes}
 	partial_hash_lookup = dict()
@@ -49,146 +66,104 @@ def _get_name_from_hash(_hash):
 	if _hash in partial_hash_lookup:
 		return partial_hash_lookup[_hash]
 
-def _get_hash_from_name(dsname):
+def _get_hash_from_name(name):
 	""" Utility function to get a dataset's hash from its name"""
 	names_and_hashes = _list_ds()
 	name_lookup = {n: h for n, h in names_and_hashes}
-	if dsname in name_lookup:
-		return name_lookup[dsname]
+	if name in name_lookup:
+		return name_lookup[name]
 
-def list_ds(name_only=True):
-	"""get a listing of datasets on your qri node"""
+def _run_select_all(name):
+	""" helper function for getting data from qri commandline"""
+	command = """qri run -f csv "select * from {}" """.format(name)
+	stdoutdata = _shell_exec(command)
+	if stdoutdata[:3].lower() in ["csv", "txt"]:
+		stdoutdata = stdoutdata[3:]
+	return StringIO(stdoutdata)
+
+def _get_ds_info(name):
+	""" helper function for getting a dataset's info from qri node"""
+	_hash = _get_hash_from_name(name)
+	command = """qri info -f json {}""".format(_hash)
+	stdoutdata = _shell_exec(command)
+	info = json.loads(stdoutdata)
+	return info
+
+def _get_ds_fields(name, verbose=False):
+	""" helper function for getting a dataset's fields from qri node"""
+	info = _get_ds_info(name)
+	if verbose:
+		return info["structure"]["schema"]["fields"]
+	else:
+		return [f["name"] for f in info["structure"]["schema"]["fields"]]
+
+
+#------------------------------------------------------------------
+def ds_list(name_only=True):
+	""" get a listing of datasets on a qri node"""
 	names_and_hashes = _list_ds()
 	if name_only:
 		return [items[0] for items in names_and_hashes]
 	else:
 		return names_and_hashes
 
-def ds_info(dsname):
-	""" get a dataset's metadata as a dict
 
-	Args:
-		dsname (str): name of the dataset of interest
-
-	Returns:
-		meta (dict): dictionary containing dataset metadata
-	"""
-	_hash = _get_hash_from_name(dsname)
-	command = "qri info -f json {}".format(_hash)
-	stdoutdata = _shell_exec(command)
-	meta = json.loads(stdoutdata)
-	return meta
-
-class Structure(object):
-	""" `Structure` objects are describe the structure of a `Dataset`
+class QriDataset(object):
+	""" QriDataset consists of a pandas DataFrame with additional 
+	qri-related attributes and methods
 
 	Attributes:
-		_format (str): the format of the qri `Dataset`
-		formatConfig (dict): describes the formatConfig of the qri `Dataset`
-		schema (dict): describes the schema of the qri `Dataset`
+		name (str): name of qri dataset
+		title (str): title of qri dataset
+		description (str): description of qri dataset
+		path (stro): hash of datset representing its unique address
+			based on the files's content
+		structure (dict): metadat containint the dataset's fields and schema
+		timestamp (str): timestamp indicating when the dataset was created
+		df (:obj: pd.DataFrame): data table
 	"""
-	def __init__(self,
-							 format=None,
-							 formatConfig=None,
-							 schema=None,
-							 **kwargs):
-		self._format = format
-		self.formatConfig = formatConfig
-		self.schema = schema
-
-	def fields(self, verbose):
-		""" Gets a list of the dataset's fields
-
-		Args:
-			verbose (bool): flag to include just names or names, titles, 
-				descriptions of each field
-
-		Returns:
-			list: If `verbose` is True, returns a list of dictionaries 
-			including the name, title, and description for each field in 
-			the dataset; if set to False, `fields` returns a list of field 
-			names
-		"""
-		_fields = self.schema["fields"]
-		if verbose:
-			return _fields
-		return [f["name"] for f in _fields]
-
-class QriDataFrame(pd.DataFrame):
-	""" TODO: docstring
-	Attributes
-		attr1 (type): desc
-		attr2 (type): desc
-	"""
-	_metadata = [ "name", 
-								"title", 
-								"description", 
-								"data_hash", 
-								"timestamp", 
-								"structure",
-							]
 
 	def __init__(self, *args, **kwargs):
-		#self.new_thang = new_thang
-		self.name = kwargs.pop('name', None)
-		self.title = kwargs.pop('title', None)
-		self.description = kwargs.pop('description', None)
-		self.data_hash = kwargs.pop('data', None)
-		structure_dict = kwargs.pop('structure', None)
-		self.structure = Structure(**structure_dict)
-		data_table = kwargs.pop('data_table', None)
-		if data_table:
-			df_table = data_table
+		self.name = kwargs.pop("name", "")
+		self.title = kwargs.pop("title", "")
+		self.description = kwargs.pop("description", "")
+		self.path = kwargs.pop("data", "")
+		self.structure = kwargs.pop("structure", None)
+		df_table = kwargs.pop("df_table", None)
+		if df_table:
+			self.df = df_table
 		else:
-			df_table = self._load_data()
-		super(QriDataFrame, self).__init__(df_table)
-		
+			self.df = self._load_data_table(self.name)
+		del df_table
 
-	@property
-	def _constructor(self):
-		return QriDataFrame
+	def _load_data_table(self, name):
+		""" gets data and headers and loads into dataframe """
+		fields = _get_ds_fields(name)
+		data_table = _run_select_all(name)
+		return pd.read_csv(data_table, header=None, names=fields)
 
 	def fields(self, verbose=False):
-		""" Gets a list of the dataset's fields by calling fields on its
-		`structure` attribute
+		""" get the fields of the dataset from the datset object """
+		if not self.structure:
+			info = _get_ds_info(self.name)
+			self.structure = info["structure"]
+		if verbose:
+			return self.structure["schema"]["fields"]
+		else:
+			return [f["name"] for f in self.structure["schema"]["fields"]]
 
-		Args:
-			verbose (bool): flag to include just names or names, titles, 
-				descriptions of each field; default=False
+def load_ds(name):
+	""" Loads a dataset from a qri node """
+	info, err = _get_ds_info(name)
+	if err != "":
+		raise Exception("error: {}".format(err))
+	info["name"] = name
+	return QriDataset(**info)
 
-		Returns:
-			list: If `verbose` is True, returns a list of dictionaries 
-			including the name, title, and description for each field in 
-			the dataset; if set to False, `fields` returns a list of field 
-			names
-		"""
-		return self.structure.fields(verbose=verbose)
-
-	def _load_data(self):
-		""" Loads data into `Dataset`
-
-		Returns:
-			output (:obj: pd.DataFrame): pandas dataframe of Dataset with corresponding name
-
-		"""
-		command = """qri run -f csv "select * from {}" """.format(self.name)
-		stdoutdata = _shell_exec(command)
-		if stdoutdata[:3].lower() in ["csv", "txt"]:
-			stdoutdata = stdoutdata[3:]
-			output = pd.read_csv(StringIO(stdoutdata), header=None, names=self.fields())
-		return output
-
-def load_ds(dsname):
-	""" Loads a dataset from your qri node
-	"""
-	info = ds_info(dsname)
-	info["name"] = dsname
-	#info["data_table"] = None
-	qdf = QriDataFrame(**info)
-	return qdf
+#------------------------------------------------------------------
 
 def _save_tmp_table(ds):
-	ds.to_csv(_TMP_TABLE_PATH, index=False, quoting=csv.QUOTE_NONNUMERIC)
+	ds.df.to_csv(_TMP_TABLE_PATH, index=False, quoting=csv.QUOTE_NONNUMERIC)
 
 def _remove_tmp_table():
 	command = """rm -f {}""".format(_TMP_TABLE_PATH)
@@ -209,18 +184,21 @@ def _get_flat_metadata(ds):
 	d["fields"] = ds.fields(verbose=True)
 	return d
 
-def save_ds(dataset, name, metadata={}, transfer_meta=True):
-	""" Save a dataset as a new dataset
+#------------------------------------------------------------------
 
-	Args
-		dataset (:obj: qri.Dataset): dataset object to save
-		name (str): name to give to dataset
-		metadata (dict): a flat dictionary of metadata to specify the 
+def save_ds(dataset, name, metadata={}, transfer_meta=True):
+	""" Save a QriDataset as a new QriDataset
+
+	Args:
+		dataset (:obj: QriDataset): dataset object to save
+		name (str): name to give dataset
+		metadata (dict): a flat dictionary of metdata to specify the 
 			title, description, column names and descriptions, etc.
-		transfer_meta (bool): if True, if a metadata field is not
-			provided `save_ds` will attempt to transfer values from the 
-			source dataset
+		transfer_meta (bool): if True, if a metadata field is not 
+			provided `save_ds` will attempt to tranfer values from the 
+			source datset
 	"""
+	#check to make sure there isn't a name conflict
 	existing_names = _list_ds()
 	if name in existing_names:
 		raise Exception("name '{}' already exists, name must be unique".format(name))
@@ -237,13 +215,14 @@ def save_ds(dataset, name, metadata={}, transfer_meta=True):
 			metadata["fields"] = [{"name": val} for val in metadata["fields"]]
 		if transfer_meta:
 			old_fields = _get_flat_metadata(dataset)
+			# use old value where there is no value in metadata
 			for k in old_fields:
 				metadata[k] = metadata.get(k, old_fields[k])
 		#update metadata
 		structured_metadata = OrderedDict()
 		structured_metadata["title"] = metadata.get("title", "")
 		structured_metadata["description"] = metadata.get("description", "")
-		ordered_col_names = list(dataset.columns)
+		ordered_col_names = list(dataset.df.columns)
 		if "fields" in metadata and metadata["fields"][0]["name"] != "field_1":
 			field_lookup = {f["name"]: f for f in metadata["fields"]}
 			fields = list()
@@ -267,24 +246,18 @@ def save_ds(dataset, name, metadata={}, transfer_meta=True):
 			_remove_tmp_meta()
 			return
 
-
-def install_qri(cmd_only=False):
-	"""Utility to install qri if it's not already installed"""
-	#install qri cmd
-	command1 = "go get github.com/qri-io/qri"
-	command2 = "brew install qri"
-	print u"attempting to install qri cli"
-	_shell_exec(command1)
-	print "qri cli installation complete"
-	if not cmd_only:
-		_shell_exec(command2)
-		print "qri desktop installation complete"
-	
+def remove_ds(name):
+	""" removes a dataset from your qri node """
+	all_datsets = _list_ds()
+	if name not in all_datasets:
+		raise Exception("no datset named '{}' to delete")
+	command = """qri remove {}"""
+	stdoutdata = _shell_exec(command)
+	print(stdoutdata)
 
 
 def main():
-	# TODO
-	print("please use the qri commandline client @ github.com/qri-io/qri")
+	print("please use the qri commandline client @ `github.com/qri-io/qri`")
 
 if __name__ == "__main__":
 	main()

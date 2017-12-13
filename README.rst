@@ -1,15 +1,26 @@
 qri-python
 ========================
 
+.. code:: python
+  """
+   ██████╗ ██████╗ ██╗
+  ██╔═══██╗██╔══██╗██║
+  ██║   ██║██████╔╝██║
+  ██║▄▄ ██║██╔══██╗██║
+  ╚██████╔╝██║  ██║██║
+   ╚══▀▀═╝ ╚═╝  ╚═╝╚═╝
+  """
+
 qri python client
 
 
 Installation
 -------------
 
-```bash
-pip install qri
-```
+.. code:: bash
+
+  pip install qri
+
 
 Usage
 ---------

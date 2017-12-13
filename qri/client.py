@@ -248,10 +248,10 @@ def save_ds(dataset, name, metadata={}, transfer_meta=True):
 
 def remove_ds(name):
 	""" removes a dataset from your qri node """
-	all_datsets = _list_ds()
+	all_datasets = ds_list()
 	if name not in all_datasets:
-		raise Exception("no datset named '{}' to delete")
-	command = """qri remove {}"""
+		raise Exception("no datset named '{}' to delete".format(name))
+	command = """qri remove {}""".format(name)
 	stdoutdata = _shell_exec(command)
 	print(stdoutdata)
 

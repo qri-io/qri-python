@@ -19,7 +19,7 @@ AUTHOR = 'Thomas Osterbind'
 
 # Required Packages
 REQUIRED = [
-    'pandas'
+    'pandas >= 0.22.0'
 ]
 
 # ------------------------------------------------

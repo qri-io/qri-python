@@ -18,7 +18,7 @@ else:
     from io import StringIO
 
 
-_HASH_PATTERN = re.compile("^\/\w+\/(\w*)\/dataset\.json")
+_HASH_PATTERN = re.compile("^\/\w+\/(\w*)")
 _TMP_PATH = "/tmp/qri/"
 _MAX_ATTEMPTS = 10
 _DELAY = .1
@@ -110,17 +110,17 @@ class QriDataset(object):
         self.data_format = kwargs.pop("data_format", "")
         if self.name == "":
             raise QriDatasetError("name is required")
-        if not isinstance(self.data, pd.DataFrame):
-            raise QriDatasetError("data is required")
+        if not isinstance(self.data, pd.DataFrame) and not isinstance(self.data, list):
+            raise QriDatasetError("data is required. type {} not compatible", type(self.data))
         if not self.structure:
             raise QriDatasetError("structure is required")
     		# TODO: generalize for nested fields
-        self.fields = [item["title"] for item in self.structure["schema"]["items"]["items"]]
+        # self.fields = [item["title"] for item in self.structure["schema"]["items"]["items"]]
         if self.data_format == "":
         	raise QriDatasetError("structure.format is a required field")
         # format gets stripped from json.load, need to add back
         self.structure[u"format"] = self.data_format
-        self.defn[u"structure"][u"format"] = self.data_format
+        # self.defn[u"structure"][u"format"] = self.data_format
             
     def save(self, commit_msg=""):
         # save to disk temporarily
@@ -157,6 +157,8 @@ class QriDataset(object):
 
 #------------------------------------------------------------------
 def load_data(ds_name):
+    if len(ds_name.split("/")) != 2:
+        ds_name = u"me/{}".format(ds_name)
     d, m, s, defn, data_format = _load_ds(ds_name)
     ds_params = dict(
         name=ds_name,
@@ -219,13 +221,13 @@ def load_data(ds_name):
 
 
 # #------------------------------------------------------------------
-# def ds_list(name_only=True):
-# 	""" get a listing of datasets on a qri node"""
-# 	names_and_hashes = _list_ds()
-# 	if name_only:
-# 		return [items[0] for items in names_and_hashes]
-# 	else:
-# 		return names_and_hashes
+def ds_list(name_only=True):
+	""" get a listing of datasets on a qri node"""
+	names_and_hashes = _list_ds()
+	if name_only:
+		return [items[0] for items in names_and_hashes]
+	else:
+		return names_and_hashes
 
 
 # class QriDataset(object):

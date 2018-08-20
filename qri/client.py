@@ -33,7 +33,7 @@ def _shell_exec_once(command, cwd=None):
   else:
     proc = Popen(shlex.split(command), stdin=PIPE, stdout=PIPE, stderr=PIPE)
     stdoutdata, err = proc.communicate()
-    return stdoutdata, err
+    return stdoutdata.decode(), err
 
 def _shell_exec(command):
   stdoutdata, err = _shell_exec_once(command)
@@ -56,7 +56,7 @@ def strip_color(s):
 #---------------------------------------------------------------------
 
 def shift_root_down(d):
-  keys = d.keys()
+  keys = list(d.keys())
   if len(keys) > 1:
     print("error: dict must have single root")
   else:

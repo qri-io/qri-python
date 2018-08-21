@@ -1,0 +1,75 @@
+# This file defines a qri dataset. Change this file, save it, then from a terminal run:
+# $ qri add --file=dataset.yaml
+# For more info check out https://qri.io/docs
+
+# Name is a short name for working with this dataset without spaces for example:
+# "my_dataset" or "number_of_cows_that_have_jumped_the_moon"
+# name is required
+name: BirthdatesOfUSPresidents
+
+# Commit contains notes about this dataset at the time it was saved
+# all commit stuff is optional (one will be generated for you if you don't provide one)
+commit:
+  title: created dataset
+
+# Meta stores descriptive information about a dataset.
+# all meta info is optional, but you should at least add a title.
+# detailed, accurate metadata helps you & others find your data later.
+meta:
+  title: Birthdsates of US Presidents
+  description: Date and location of birth and death of US Presidents as of 2018
+  category: US History
+  # tags:
+
+# Structure contains the info a computer needs to interpret this dataset
+# qri will figure structure out for you if you don't one
+# and later you can change structure to do neat stuff like validate your
+# data and make your data work with other datasets.
+# Below is an example structure
+structure:
+  # Syntax in JSON format:
+  # format: json
+  # Schema defines the "shape" data should take, here we're saying
+  # data should be an array of strings, like this: ["foo", "bar", "baz"]
+  # schema:
+  #   type: array
+  #   items:
+  #     type: string
+  format: csv
+  schema:
+    type: array
+    items:
+      type: array
+      items:
+      - title: president
+        type: string
+      - title: birth_date
+        type: string
+      - title: birth_place
+        type: string
+      - title: death_date
+        type: string
+      - title: location_of_death
+        type: string
+
+
+
+
+
+# Transform contains instructions for creating repeatable, auditable scripts
+# that qri can execute for you. Currently transforms are written in the skylark
+# scripting language, which is modeled after the python programming language
+# for more info check https://qri.io/docs/transforms
+# transform:
+#   scriptpath: tf.sky
+
+# use viz to provide custom a HTML template of your dataset
+# the currently accepted syntax is 'html'
+# scriptpath is the path to your template, relative to this file:
+# viz:
+#   syntax: html
+#   scriptpath: template.html
+
+# the body of a dataset is data itself. either a path to a file on your computer,
+# or a URL that leads to the raw data
+# bodyPath:

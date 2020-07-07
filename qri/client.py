@@ -29,3 +29,11 @@ def get(ref):
     raise RuntimeError(err)
   d = dataset.Dataset(json.loads(result))
   return d
+
+
+def add(ref):
+  """adds a remote dataset from the registry to the user's repository"""
+  cmd = 'qri add %s' % ref
+  print('Fetching from registry...')
+  result, err = shell_exec(cmd)
+  return 'Added %s: %s' % (ref, result)

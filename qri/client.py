@@ -17,7 +17,7 @@ def list():
   if err:
     raise RuntimeError(err)
   datasets = dataset.DatasetList([dataset.Dataset(d) for d in json.loads(result)])
-  datasets.sort(key=lambda d: d.humanRef())
+  datasets.sort(key=lambda d: d.human_ref())
   return datasets
 
 

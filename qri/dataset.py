@@ -45,13 +45,13 @@ class Dataset(object):
     # Fields returned by `get` commands
     set_fields(self, obj, ['bodyPath', 'previousPath'])
     # Version info
-    self.versionInfo = self._buildVersionInfo(obj)
+    self.versionInfo = self._build_version_info(obj)
     # Subcomponents
-    self.commitComponent = Commit(obj.get('commit'))
-    self.metaComponent = Meta(obj.get('meta'))
-    self.structureComponent = Structure(obj.get('structure'))
+    self.commit_component = Commit(obj.get('commit'))
+    self.meta_component = Meta(obj.get('meta'))
+    self.structure_component = Structure(obj.get('structure'))
 
-  def _buildVersionInfo(self, obj):
+  def _build_version_info(self, obj):
     info = version_info.VersionInfo(obj)
     # TODO(dustmop): Remove me after this typo is fixed in qri core
     if 'bodyFromat' in obj:
@@ -60,24 +60,24 @@ class Dataset(object):
 
   @property
   def meta(self):
-    return self.metaComponent
+    return self.meta_component
 
   @property
   def commit(self):
-    return self.commitComponent
+    return self.commit_component
 
   @property
   def structure(self):
-    return self.structureComponent
+    return self.structure_component
 
-  def humanRef(self):
+  def human_ref(self):
     return '%s/%s' % (self.username, self.name)
 
   def __repr__(self):
-    return 'Dataset("%s")' % self.humanRef()
+    return 'Dataset("%s")' % self.human_ref()
 
   def _repr_html_(self):
-    return '<code>Dataset("%s")</code>' % self.humanRef()
+    return '<code>Dataset("%s")</code>' % self.human_ref()
 
 
 class DatasetList(list):

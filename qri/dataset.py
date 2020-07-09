@@ -1,4 +1,3 @@
-import pandas
 from . import loader
 from . import version_info
 
@@ -36,14 +35,6 @@ class Commit(object):
 
   def __repr__(self):
     return 'Commit()'
-
-
-class Body(object):
-  def __init__(self, rows, format):
-    self.rows = rows
-
-  def __repr__(self):
-    return str(self.rows)
 
 
 class Dataset(object):
@@ -88,8 +79,8 @@ class Dataset(object):
     if self.structure.format != 'csv':
       raise RuntimeError('Only csv body format is supported')
     if self.body_component is None:
-      rows = loader.loadBody(self.username, self.name, self.structure.format)
-      self.body_component = Body(rows, self.structure.format)
+      df = loader.load_body(self.username, self.name, self.structure)
+      self.body_component = df
     return self.body_component
 
   def human_ref(self):

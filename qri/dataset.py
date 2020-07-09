@@ -1,3 +1,5 @@
+import pandas
+from . import loader
 from . import version_info
 
 
@@ -36,6 +38,14 @@ class Commit(object):
     return 'Commit()'
 
 
+class Body(object):
+  def __init__(self, rows, format):
+    self.rows = rows
+
+  def __repr__(self):
+    return str(self.rows)
+
+
 class Dataset(object):
   def __init__(self, obj):
     # Fields that are always present
@@ -50,6 +60,7 @@ class Dataset(object):
     self.commit_component = Commit(obj.get('commit'))
     self.meta_component = Meta(obj.get('meta'))
     self.structure_component = Structure(obj.get('structure'))
+    self.body_component = None
 
   def _build_version_info(self, obj):
     info = version_info.VersionInfo(obj)
@@ -69,6 +80,17 @@ class Dataset(object):
   @property
   def structure(self):
     return self.structure_component
+
+  @property
+  def body(self):
+    if self.structure_component is None:
+      raise RuntimeError('Cannot read body without structure')
+    if self.structure.format != 'csv':
+      raise RuntimeError('Only csv body format is supported')
+    if self.body_component is None:
+      rows = loader.loadBody(self.username, self.name, self.structure.format)
+      self.body_component = Body(rows, self.structure.format)
+    return self.body_component
 
   def human_ref(self):
     return '%s/%s' % (self.username, self.name)

@@ -82,7 +82,9 @@ class Dataset(object):
 
 class DatasetList(list):
   def __repr__(self):
-    return 'DatasetList(length=%d)' % (len(self),)
+    content = ', '.join(['%s' % d for d in self])
+    return '[%s]' % (content,)
 
   def _repr_html_(self):
-    return '<code>DatasetList(length=%d)</code>' % (len(self),)
+    content = ', '.join(['%s' % d for d in self])
+    return '<code>[%s]</code>' % (content,)

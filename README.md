@@ -51,7 +51,15 @@ $ d.meta.description
 ```
 > ( 1 ) United Nations Population Division. World Population Prospects: 2017 Revision...
 
-TODO: Get body
+```
+# Get the dataset body as a pandas DataFrame
+$ d.body
+```
+> `.   country_name  country_code   indicator_name    ...`
+>
+> `0   Afghanistan   AFG            Population, total ...`
+> 
+> `...`
 
 TODO: Save changes
 

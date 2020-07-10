@@ -12,9 +12,11 @@ def set_fields(inst, obj, fields):
 
 class Meta(object):
   def __init__(self, obj):
-    set_fields(self, obj, ['accessURL', 'accrualPeriodicity', 'citations', 'contributors',
-                           'description', 'downloadURL', 'homeURL', 'identifier', 'keywords',
-                           'language', 'license', 'path' 'readmeURL', 'title', 'theme', 'version'])
+    set_fields(self, obj, ['accessURL', 'accrualPeriodicity', 'citations',
+                           'contributors', 'description', 'downloadURL',
+                           'homeURL', 'identifier', 'keywords', 'language',
+                           'license', 'path' 'readmeURL', 'title', 'theme',
+                           'version'])
 
   def __repr__(self):
     return 'Meta()'
@@ -22,8 +24,8 @@ class Meta(object):
 
 class Structure(object):
   def __init__(self, obj):
-    set_fields(self, obj, ['checksum', 'depth', 'entries', 'format', 'formatConfig', 'length',
-                           'schema'])
+    set_fields(self, obj, ['checksum', 'depth', 'entries', 'format',
+                           'formatConfig', 'length', 'schema'])
 
   def __repr__(self):
     return 'Structure()'
@@ -31,7 +33,8 @@ class Structure(object):
 
 class Commit(object):
   def __init__(self, obj):
-    set_fields(self, obj, ['author', 'message', 'path', 'signature', 'timestamp', 'title'])
+    set_fields(self, obj, ['author', 'message', 'path', 'signature',
+                           'timestamp', 'title'])
 
   def __repr__(self):
     return 'Commit()'

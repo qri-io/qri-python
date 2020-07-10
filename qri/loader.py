@@ -15,7 +15,7 @@ def load_body(username, dsname, structure):
   columns = [e for e in structure.schema['items']['items']]
   col_names = [c['title'] for c in columns]
   types = {c['title']: pd_type(c['type']) for c in columns}
-  header = 0 if structure.formatConfig.get('headerRow') else None
+  header = 0 if structure.format_config.get('headerRow') else None
   df = None
   try:
     # Try to parse the csv using the schema

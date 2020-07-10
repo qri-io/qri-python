@@ -1,6 +1,6 @@
 from . import loader
 from . import version_info
-from .util import set_fields
+from .util import set_fields, build_repr
 
 
 class Meta(object):
@@ -12,7 +12,16 @@ class Meta(object):
                            'version'])
 
   def __repr__(self):
-    return 'Meta()'
+    r = build_repr(self)
+    return 'Meta(%s)' % r
+
+
+class Readme(object):
+  def __init__(self, obj):
+    pass
+
+  def __repr__(self):
+    return 'Readme("")'
 
 
 class Structure(object):
@@ -21,7 +30,8 @@ class Structure(object):
                            'formatConfig', 'length', 'schema'])
 
   def __repr__(self):
-    return 'Structure()'
+    r = build_repr(self)
+    return 'Structure(%s)' % r
 
 
 class Commit(object):
@@ -30,7 +40,8 @@ class Commit(object):
                            'timestamp', 'title'])
 
   def __repr__(self):
-    return 'Commit()'
+    r = build_repr(self)
+    return 'Commit(%s)' % r
 
 
 class Dataset(object):
@@ -46,6 +57,7 @@ class Dataset(object):
     # Subcomponents
     self.commit_component = Commit(obj.get('commit'))
     self.meta_component = Meta(obj.get('meta'))
+    self.readme_component = Readme(obj.get('readme'))
     self.structure_component = Structure(obj.get('structure'))
     self.body_component = None
 
@@ -63,6 +75,10 @@ class Dataset(object):
   @property
   def commit(self):
     return self.commit_component
+
+  @property
+  def readme(self):
+    return self.readme_component
 
   @property
   def structure(self):

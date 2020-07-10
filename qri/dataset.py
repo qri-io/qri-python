@@ -1,13 +1,6 @@
 from . import loader
 from . import version_info
-
-
-def set_fields(inst, obj, fields):
-  for f in fields:
-    if obj is None:
-      setattr(inst, f, None)
-    else:
-      setattr(inst, f, obj.get(f))
+from .util import set_fields
 
 
 class Meta(object):
@@ -60,7 +53,7 @@ class Dataset(object):
     info = version_info.VersionInfo(obj)
     # TODO(dustmop): Remove me after this typo is fixed in qri core
     if 'bodyFromat' in obj:
-      info.bodyFormat = obj.get('bodyFromat')
+      info.body_format = obj.get('bodyFromat')
     return info
 
   @property

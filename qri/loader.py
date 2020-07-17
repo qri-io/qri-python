@@ -30,6 +30,10 @@ def load_body(username, dsname, structure):
 def pd_type(t):
   if t == 'integer':
     return 'int64'
+  elif t == 'number':
+    return 'float64'
   elif t == 'string':
     return 'string'
+  elif t == 'bool':
+    return 'bool'
   raise RuntimeError('Unknown type: "%s"' % t)

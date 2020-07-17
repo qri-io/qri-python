@@ -71,6 +71,13 @@ Clone this repository
 git clone https://github.com/qri-io/qri-python
 ```
 
+Make sure it's using the "new-model" branch:
+
+```
+cd qri-python
+git checkout new-model
+`` `
+
 Navigate to the directory where you run jupyter from:
 
 ```

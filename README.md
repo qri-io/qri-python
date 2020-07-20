@@ -14,11 +14,7 @@ qri python client
 
 # Installation
 
-<span style="color:red;font-size:140%;">Out of date</span>
-
-```
-pip install qri
-```
+<span style="color:red;font-size:140%;">Coming soon...</span>
 
 # Usage
 
@@ -69,13 +65,6 @@ Clone this repository
 
 ```
 git clone https://github.com/qri-io/qri-python
-```
-
-Make sure it's using the "new-model" branch:
-
-```
-cd qri-python
-git checkout new-model
 ```
 
 Navigate to the directory where you run jupyter from:

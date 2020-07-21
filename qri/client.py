@@ -6,7 +6,7 @@ import json
 import os
 import re
 
-from .cmd_util import shell_exec
+from .cmd_util import shell_exec, QriClientError
 from . import dataset
 
 
@@ -15,7 +15,7 @@ def list():
   cmd = 'qri list --format json'
   result, err = shell_exec(cmd)
   if err:
-    raise RuntimeError(err)
+    raise QriClientError(err)
   datasets = dataset.DatasetList([dataset.Dataset(d) for d in json.loads(result)])
   datasets.sort(key=lambda d: d.human_ref())
   return datasets
@@ -26,7 +26,7 @@ def get(ref):
   cmd = 'qri get --format json %s' % ref
   result, err = shell_exec(cmd)
   if err:
-    raise RuntimeError(err)
+    raise QriClientError(err)
   d = dataset.Dataset(json.loads(result))
   return d
 
@@ -36,4 +36,6 @@ def add(ref):
   cmd = 'qri add %s' % ref
   print('Fetching from registry...')
   result, err = shell_exec(cmd)
+  if err:
+    raise QriClientError(err)
   return 'Added %s: %s' % (ref, result)

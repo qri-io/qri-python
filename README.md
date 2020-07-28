@@ -14,7 +14,9 @@ qri python client
 
 # Installation
 
-<span style="color:red;font-size:140%;">Coming soon...</span>
+```
+pip install qri
+```
 
 # Usage
 

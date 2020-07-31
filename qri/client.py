@@ -5,6 +5,7 @@
 import json
 import os
 import re
+import pandas as pd
 
 from .cmd_util import shell_exec, QriClientError
 from . import dataset
@@ -39,3 +40,8 @@ def add(ref):
   if err:
     raise QriClientError(err)
   return 'Added %s: %s' % (ref, result)
+
+def sql(query):
+  cmd = f'qri sql --format "json" "{query}"'
+  result, err = shell_exec(cmd)
+  return pd.read_json(result)

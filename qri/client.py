@@ -5,6 +5,7 @@
 import json
 import os
 import re
+import pandas as pd
 
 from .cmd_util import shell_exec
 from . import dataset
@@ -37,3 +38,8 @@ def add(ref):
   print('Fetching from registry...')
   result, err = shell_exec(cmd)
   return 'Added %s: %s' % (ref, result)
+
+def sql(query):
+  cmd = f'qri sql --format "json" "{query}"'
+  result, err = shell_exec(cmd)
+  return pd.read_json(result)

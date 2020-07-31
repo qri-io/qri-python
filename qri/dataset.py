@@ -1,3 +1,4 @@
+import markdown
 from . import loader
 from . import version_info
 from .util import set_fields, build_repr
@@ -18,10 +19,21 @@ class Meta(object):
 
 class Readme(object):
     def __init__(self, obj):
-        pass
+        if not obj or 'scriptBytes' not in obj:
+            self.script = None
+            return
+        self.script = loader.base64_decode(obj['scriptBytes']).decode('utf-8')
+
+    def render(self):
+        if self.script is None:
+            return ''
+        return markdown.markdown(self.script)
 
     def __repr__(self):
-        return 'Readme("")'
+        return self.script
+
+    def _repr_html_(self):
+        return self.render()
 
 
 class Structure(object):

@@ -1,3 +1,4 @@
+import base64
 import io
 import pandas
 from .cmd_util import shell_exec
@@ -30,6 +31,10 @@ def load_body(username, dsname, structure):
 
 def from_json(json_text):
     return pandas.read_json(json_text)
+
+
+def base64_decode(bdata):
+    return base64.b64decode(bdata)
 
 
 def pd_type(t):

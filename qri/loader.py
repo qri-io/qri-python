@@ -28,6 +28,10 @@ def load_body(username, dsname, structure):
     return df
 
 
+def from_json(json_text):
+    return pandas.read_json(json_text)
+
+
 def pd_type(t):
     if t == 'integer':
         return 'int64'

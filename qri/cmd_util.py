@@ -13,6 +13,11 @@ def shell_exec(command, cwd=None):
                      stderr=PIPE,
                      cwd=cwd)
         stdout, err = proc.communicate()
+        if proc.returncode == 0:
+            # If command exit code is 0, assume stderr is informational only.
+            # This probably won't work forever, but fits most of our current
+            # use cases.
+            err = None
         return stdout, err
     except FileNotFoundError as e:
         sys.stderr.write("""qri command-line binary not found. It is either not installed, or PATH needs to be assigned. Please get the latest release from https://github.com/qri-io/qri, then run this command again.\n""")

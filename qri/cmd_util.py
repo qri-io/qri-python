@@ -22,7 +22,7 @@ def shell_exec(command, cwd=None):
     except FileNotFoundError as e:
         sys.stderr.write("""qri command-line binary not found. It is either not installed, or PATH needs to be assigned. Please get the latest release from https://github.com/qri-io/qri, then run this command again.\n""")
         sys.exit(1)
-    except:
+    except BaseException as e:
         raise e
 
 

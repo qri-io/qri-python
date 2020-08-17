@@ -6,7 +6,7 @@ from .cmd_util import shell_exec
 
 def load_body(username, dsname, structure):
     ref = '%s/%s' % (username, dsname)
-    cmd = 'qri get body %s' % ref
+    cmd = ['qri', 'get', 'body', ref]
     result, err = shell_exec(cmd)
     if err:
         raise RuntimeError(err)

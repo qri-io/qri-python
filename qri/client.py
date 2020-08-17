@@ -13,7 +13,7 @@ from . import loader
 
 def list():
     """list datasets in the user's repository"""
-    cmd = 'qri list --format json'
+    cmd = ['qri', 'list', '--format', 'json']
     result, err = shell_exec(cmd)
     if err:
         raise QriClientError(err)
@@ -25,7 +25,7 @@ def list():
 
 def get(ref):
     """get a dataset in the repository by reference"""
-    cmd = 'qri get --format json %s' % ref
+    cmd = ['qri', 'get', '--format', 'json', ref]
     result, err = shell_exec(cmd)
     if err:
         raise QriClientError(err)
@@ -35,7 +35,7 @@ def get(ref):
 
 def pull(ref):
     """pull a remote dataset from the registry to the user's repository"""
-    cmd = 'qri pull %s' % ref
+    cmd = ['qri', 'pull', ref]
     print('Fetching from registry...')
     result, err = shell_exec(cmd)
     if err:
@@ -50,7 +50,7 @@ def add(ref):
 
 def sql(query):
     """sql query run against a dataset"""
-    cmd = f'qri sql --format "json" "{query}"'
+    cmd = ['qri', 'sql', '--format', 'json', query]
     result, err = shell_exec(cmd)
     if err:
         raise QriClientError(err)

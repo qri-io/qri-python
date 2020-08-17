@@ -1,5 +1,4 @@
 import re
-import shlex
 from subprocess import Popen, PIPE
 import sys
 
@@ -7,7 +6,7 @@ import sys
 def shell_exec(command, cwd=None):
     """execute commands and return stdout"""
     try:
-        proc = Popen(shlex.split(command),
+        proc = Popen(command,
                      stdin=PIPE,
                      stdout=PIPE,
                      stderr=PIPE,

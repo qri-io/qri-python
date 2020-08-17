@@ -6,8 +6,12 @@ import sys
 
 def shell_exec(command, cwd=None):
     """execute commands and return stdout"""
+    if isinstance(command, list):
+        command_list = command
+    else:
+        command_list = shlex.split(command)
     try:
-        proc = Popen(shlex.split(command),
+        proc = Popen(command_list,
                      stdin=PIPE,
                      stdout=PIPE,
                      stderr=PIPE,

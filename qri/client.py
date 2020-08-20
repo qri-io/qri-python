@@ -6,7 +6,7 @@ import json
 import os
 import re
 
-from .cmd_util import shell_exec, QriClientError
+from .cmd_util import shell_exec, QriCLIError
 from . import dataset
 from . import loader
 
@@ -16,7 +16,7 @@ def list():
     cmd = ['qri', 'list', '--format', 'json']
     result, err = shell_exec(cmd)
     if err:
-        raise QriClientError(err)
+        raise QriCLIError(err)
     raw_data = json.loads(result)
     datasets = dataset.DatasetList([dataset.Dataset(d) for d in raw_data])
     datasets.sort(key=lambda d: d.human_ref())
@@ -28,7 +28,7 @@ def get(ref):
     cmd = ['qri', 'get', '--format', 'json', ref]
     result, err = shell_exec(cmd)
     if err:
-        raise QriClientError(err)
+        raise QriCLIError(err)
     d = dataset.Dataset(json.loads(result))
     return d
 
@@ -39,7 +39,7 @@ def pull(ref):
     print('Fetching from registry...')
     result, err = shell_exec(cmd)
     if err:
-        raise QriClientError(err)
+        raise QriCLIError(err)
     return 'Pulled %s: %s' % (ref, result)
 
 
@@ -53,5 +53,5 @@ def sql(query):
     cmd = ['qri', 'sql', '--format', 'json', query]
     result, err = shell_exec(cmd)
     if err:
-        raise QriClientError(err)
+        raise QriCLIError(err)
     return loader.from_json(result)

@@ -1,5 +1,6 @@
 import markdown
 from . import loader
+from . import repository
 from . import version_info
 from .util import set_fields, build_repr
 
@@ -115,6 +116,9 @@ class Dataset(object):
 
     def _repr_html_(self):
         return '<code>Dataset("%s")</code>' % self.human_ref()
+
+    def save(self):
+        return repository.save(self.username, self.name)
 
 
 class DatasetList(list):

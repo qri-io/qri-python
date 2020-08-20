@@ -1,7 +1,7 @@
 import base64
 import io
 import pandas
-from .cmd_util import shell_exec
+from .cmd_util import shell_exec, QriCLIError
 
 
 def load_body(username, dsname, structure):
@@ -9,7 +9,7 @@ def load_body(username, dsname, structure):
     cmd = ['qri', 'get', 'body', ref]
     result, err = shell_exec(cmd)
     if err:
-        raise RuntimeError(err)
+        raise QriCLIError(err)
     if structure.format != 'csv':
         raise RuntimeError('Format "%s" not supported' % structure.format)
     stream = io.StringIO(str(result, 'utf8'))

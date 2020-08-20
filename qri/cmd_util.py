@@ -32,7 +32,7 @@ def strip_color(colored_text):
     return ansi_escape.sub('', colored_text)
 
 
-class QriClientError(RuntimeError):
+class QriCLIError(RuntimeError):
     def __init__(self, err_string):
         clean_err_string = strip_color(err_string.decode('utf-8'))
-        super(QriClientError, self).__init__(clean_err_string)
+        super(QriCLIError, self).__init__(clean_err_string)

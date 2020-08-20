@@ -117,8 +117,13 @@ class Dataset(object):
     def _repr_html_(self):
         return '<code>Dataset("%s")</code>' % self.human_ref()
 
-    def save(self, title=None):
-        return repository.save(self.username, self.name, title=title)
+    def save(self, title=None, force=False):
+        return repository.save(
+            self.username,
+            self.name,
+            title=title,
+            force=force
+        )
 
     def commit(self, *args, **kwargs):
         return self.save(*args, **kwargs)

@@ -120,6 +120,9 @@ class Dataset(object):
     def save(self, title=None):
         return repository.save(self.username, self.name, title=title)
 
+    def commit(self, *args, **kwargs):
+        return self.save(*args, **kwargs)
+
 
 class DatasetList(list):
     def __repr__(self):

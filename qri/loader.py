@@ -25,8 +25,28 @@ def load_body(username, dsname, structure):
     except (TypeError, ValueError):
         # If pandas encountered parse errors, reparse without datatypes
         stream = io.StringIO(str(result, 'utf8'))
+                # TODO - Something weird is happening. -122.83466340000001 gets resaved as -122.8346634,
+                # and -122.8346634 gets resaved back as -122.83466340000001. float_precision='round_trip'
+                # Sounds like it would fix it but it doesn't. We may want it regardless, though.
+                # TODO - big test suite of round-trip csvs to make sure it doesn't screw it up here or in other ways?
         df = pandas.read_csv(stream, header=header, names=col_names)
     return df
+
+def write_body(df, body_path, structure):
+
+    # TODO - From basic testing it doesn't seem like I need these; column orders stay in place
+    # However, maybe I shouldn't assume this.
+    # columns = [e for e in structure.schema['items']['items']]
+    # col_names = [c['title'] for c in columns]
+    # types = {c['title']: pd_type(c['type']) for c in columns}
+
+    # header = 0 if structure.format_config.get('headerRow') else None
+    df.to_csv(body_path,
+            # header=header, TODO - do I care about this value? It means something different than in csv_read
+            #colums=col_names, TODO - ?
+            index=False,
+            )
+    # TODO - return?
 
 
 def from_json(json_text):

@@ -117,12 +117,28 @@ class Dataset(object):
     def _repr_html_(self):
         return '<code>Dataset("%s")</code>' % self.human_ref()
 
+    # NOTE (remove before commit): "Save" in the context of a Python
+    # library sounds like it should imply that we're saving any
+    # changes done within Python. `qri save` on the command line by
+    # default saves changes to `body.csv`. If the user wants that, it
+    # would be less awkward to just use the command line tool.
+
+    # TODO - As such: only allow save if we have a clean `qri status`,
+    # to avoid overwriting work done by other clients. Not foolproof,
+    # but it might avoid some surprises.
     def save(
             self,
             title=None,
             message=None,
             force=False
         ):
+        # TODO - confirm body_path exists
+        # * It was gotten by get(), not list()
+        # * I actually own this dataset
+
+        # TODO - loader.write_readme(self.readme)
+        # TODO - loader.write_structure(self.structure)
+        loader.write_body(self.body, self.body_path, self.structure)
         return repository.save(
             self.username,
             self.name,

@@ -32,7 +32,7 @@ def load_body(username, dsname, structure):
         df = pandas.read_csv(stream, header=header, names=col_names, float_precision='round_trip')
     return df
 
-def write_body(df, body_path, structure):
+def write_body(df, outfile_path, structure):
 
     # TODO - From basic testing it doesn't seem like I need these; column orders stay in place
     # However, maybe I shouldn't assume this.
@@ -41,7 +41,8 @@ def write_body(df, body_path, structure):
     # types = {c['title']: pd_type(c['type']) for c in columns}
 
     # header = 0 if structure.format_config.get('headerRow') else None
-    df.to_csv(body_path,
+
+    df.to_csv(outfile_path,
             # header=header, TODO - do I care about this value? It means something different than in csv_read
             #colums=col_names, TODO - ?
             index=False,

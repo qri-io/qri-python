@@ -1,4 +1,6 @@
 import markdown
+import os
+import tempfile
 from . import loader
 from . import repository
 from . import version_info
@@ -125,27 +127,37 @@ class Dataset(object):
 
     # TODO - As such: only allow save if we have a clean `qri status`,
     # to avoid overwriting work done by other clients. Not foolproof,
-    # but it might avoid some surprises.
+    # but it might avoid some surprises. Then again, if we're doing the
+    # temp file, then maybe not?
+    # TODO - Allow save as another dataset. And then it'll just return
+    # that dataset as an object. Otherwise return self?
     def save(
             self,
             title=None,
             message=None,
             force=False
         ):
-        # TODO - confirm body_path exists
-        # * It was gotten by get(), not list()
-        # * I actually own this dataset
+        # TODO - confirm this is okay
+        # * If I got this via "qri.list()", should I let this error like all the others?
+        # * If I don't own this dataset, do I just let qri cli tell me the error? Probably.
 
         # TODO - loader.write_readme(self.readme)
         # TODO - loader.write_structure(self.structure)
-        loader.write_body(self.body, self.body_path, self.structure)
-        return repository.save(
-            self.username,
-            self.name,
-            title=title,
-            message=message,
-            force=force
-        )
+        # Instead of overwriting the file at self.body_path (probably body.csv),
+        # Make a temp file so that qri can import it and format it as desired
+        outfile = tempfile.NamedTemporaryFile(delete=False)
+        try:
+            loader.write_body(self.body, outfile.name, self.structure)
+            return repository.save(
+                self.username,
+                self.name,
+                outfile.name,
+                title=title,
+                message=message,
+                force=force,
+            )
+        finally:
+            os.remove(outfile.name)
 
     def commit(self, *args, **kwargs):
         return self.save(*args, **kwargs)

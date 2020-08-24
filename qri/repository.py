@@ -4,12 +4,13 @@ from .cmd_util import shell_exec, QriCLIError
 def save(
         username,
         dsname,
+        body,
         title=None,
         message=None,
         force=False
     ):
     ref = '%s/%s' % (username, dsname)
-    cmd = ['qri', 'save', ref]
+    cmd = ['qri', 'save', ref, '--body', body]
     if title != None:
         cmd = cmd + ['--title', title]
     if message != None:

@@ -25,11 +25,11 @@ def load_body(username, dsname, structure):
     except (TypeError, ValueError):
         # If pandas encountered parse errors, reparse without datatypes
         stream = io.StringIO(str(result, 'utf8'))
-                # TODO - Something weird is happening. -122.83466340000001 gets resaved as -122.8346634,
-                # and -122.8346634 gets resaved back as -122.83466340000001. float_precision='round_trip'
-                # Sounds like it would fix it but it doesn't. We may want it regardless, though.
+                # TODO - Something weird is happening. float_precision='round_trip' solves a lot of inconsistencies
+                # However even with it set, -122.83466340000001 gets resaved as -122.8346634, and
+                # -122.8346634 gets resaved back as -122.83466340000001, at least in one example file I have.
                 # TODO - big test suite of round-trip csvs to make sure it doesn't screw it up here or in other ways?
-        df = pandas.read_csv(stream, header=header, names=col_names)
+        df = pandas.read_csv(stream, header=header, names=col_names, float_precision='round_trip')
     return df
 
 def write_body(df, body_path, structure):

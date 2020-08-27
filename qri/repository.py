@@ -7,7 +7,8 @@ def save(
         body,
         title=None,
         message=None,
-        force=False
+        force=False,
+        dry_run=False,
     ):
     ref = '%s/%s' % (username, dsname)
     cmd = ['qri', 'save', ref, '--body', body]
@@ -17,6 +18,8 @@ def save(
         cmd = cmd + ['--message', message]
     if force == True:
         cmd = cmd + ['--force']
+    if dry_run == True:
+        cmd = cmd + ['--dry-run']
     result, err = shell_exec(cmd)
     if err:
         raise QriCLIError(err)

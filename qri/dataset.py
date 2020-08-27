@@ -135,7 +135,8 @@ class Dataset(object):
             self,
             title=None,
             message=None,
-            force=False
+            force=False,
+            dry_run=False,
         ):
         # TODO - confirm this is okay
         # * If I got this via "qri.list()", should I let this error like all the others?
@@ -155,6 +156,7 @@ class Dataset(object):
                 title=title,
                 message=message,
                 force=force,
+                dry_run=dry_run,
             )
         finally:
             os.remove(outfile.name)

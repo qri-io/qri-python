@@ -1,7 +1,8 @@
 import base64
 import io
+import json
 import pandas
-from .cmd_util import shell_exec
+from .cmd_util import shell_exec, QriClientError
 
 
 def load_body(username, dsname, structure):
@@ -47,3 +48,11 @@ def pd_type(t):
     elif t == 'bool':
         return 'bool'
     raise RuntimeError('Unknown type: "%s"' % t)
+
+
+def get(ref):
+    cmd = 'qri get --format json %s' % ref
+    result, err = shell_exec(cmd)
+    if err:
+        raise QriClientError(err)
+    return json.loads(result)

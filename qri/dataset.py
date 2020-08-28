@@ -58,27 +58,17 @@ class Commit(object):
 
 class Dataset(object):
     def __init__(self, obj):
-        # Fields that are always present
-        set_fields(self, obj, ['username', 'name', 'profileID', 'path'])
-        if self.username is None and 'peername' in obj:
-            self.username = obj.get('peername')
-        # Fields returned by `get` commands
-        set_fields(self, obj, ['bodyPath', 'previousPath'])
-        # Version info
-        self.versionInfo = self._build_version_info(obj)
+        # NOTE - All fields not always present
+        # TODO - profileID never seems to be here. maybe meant commit.author.id
+        #  (which isn't always here either)?
+        set_fields(self, obj, ['name', 'bodyPath', 'path', 'profileID', 'previousPath'])
+        self.username = obj.get('peername')
         # Subcomponents
         self.commit_component = Commit(obj.get('commit'))
         self.meta_component = Meta(obj.get('meta'))
         self.readme_component = Readme(obj.get('readme'))
         self.structure_component = Structure(obj.get('structure'))
         self.body_component = None
-
-    def _build_version_info(self, obj):
-        info = version_info.VersionInfo(obj)
-        # TODO(dustmop): Remove me after this typo is fixed in qri core
-        if 'bodyFromat' in obj:
-            info.body_format = obj.get('bodyFromat')
-        return info
 
     @property
     def meta(self):
@@ -125,3 +115,22 @@ class DatasetList(list):
     def _repr_html_(self):
         content = ', '.join(['%s' % d for d in self])
         return '<code>[%s]</code>' % (content,)
+
+class DatasetListItem(list):
+    def __init__(self, obj):
+        set_fields(self, obj, ['username', 'name', 'profileID', 'path'])
+        # Version info
+        self.versionInfo = version_info.VersionInfo(obj)
+
+    # Return the full dataset
+    def get(self):
+        return Dataset(loader.get(self.human_ref()))
+
+    def human_ref(self):
+        return '%s/%s' % (self.username, self.name)
+
+    def __repr__(self):
+        return 'DatasetListItem("%s")' % self.human_ref()
+
+    def _repr_html_(self):
+        return '<code>DatasetListItem("%s")</code>' % self.human_ref()

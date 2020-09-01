@@ -3,49 +3,41 @@
 """Client for interacting with qri repositories"""
 
 import json
-import os
-import re
+import requests
 
 from .cmd_util import shell_exec, QriClientError
 from . import dataset
+from . import dsref
 from . import loader
 
 
-def list():
+def list(username=None):
     """list datasets in the user's repository"""
-    cmd = 'qri list --format json'
-    result, err = shell_exec(cmd)
-    if err:
-        raise QriClientError(err)
-    raw_data = json.loads(result)
-    datasets = dataset.DatasetList([dataset.Dataset(d) for d in raw_data])
+    objs = loader.instance().list_dataset_objects(username)
+    datasets = dataset.DatasetList([dataset.Dataset(d) for d in objs])
     datasets.sort(key=lambda d: d.human_ref())
     return datasets
 
 
-def get(ref):
+def get(refstr):
     """get a dataset in the repository by reference"""
-    cmd = 'qri get --format json %s' % ref
-    result, err = shell_exec(cmd)
-    if err:
-        raise QriClientError(err)
-    d = dataset.Dataset(json.loads(result))
+    ref = dsref.parse_ref(refstr)
+    obj = loader.instance().get_dataset_object(ref)
+    d = dataset.Dataset(obj)
     return d
 
 
-def pull(ref):
+def pull(refstr):
     """pull a remote dataset from the registry to the user's repository"""
-    cmd = 'qri pull %s' % ref
+    ref = dsref.parse_ref(refstr)
     print('Fetching from registry...')
-    result, err = shell_exec(cmd)
-    if err:
-        raise QriClientError(err)
-    return 'Pulled %s: %s' % (ref, result)
+    text = loader.instance().pull_dataset(ref)
+    return 'Pulled %s: %s' % (ref, text)
 
 
-def add(ref):
+def add(refstr):
     """add is an alias for pull"""
-    return pull(ref)
+    return pull(refstr)
 
 
 def sql(query):

@@ -1,4 +1,6 @@
 import markdown
+
+from . import dsref
 from . import loader
 from . import version_info
 from .util import set_fields, build_repr
@@ -19,6 +21,8 @@ class Meta(object):
 
 class Readme(object):
     def __init__(self, obj):
+        # TODO(dustmop): Handle scriptPath
+        # TODO(dustmop): Handle null readme (should not be an error)
         if not obj or 'scriptBytes' not in obj:
             self.script = None
             return
@@ -103,7 +107,8 @@ class Dataset(object):
         if self.structure.format != 'csv':
             raise RuntimeError('Only csv body format is supported')
         if self.body_component is None:
-            df = loader.load_body(self.username, self.name, self.structure)
+            ref = dsref.Ref(self.username, self.name)
+            df = loader.instance().load_body(ref, self.structure)
             self.body_component = df
         return self.body_component
 

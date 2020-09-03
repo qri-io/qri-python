@@ -2,9 +2,6 @@
 
 """Client for interacting with qri repositories"""
 
-import json
-import requests
-
 from .cmd_util import shell_exec, QriClientError
 from . import dataset
 from . import dsref

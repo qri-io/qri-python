@@ -4,6 +4,7 @@ import json
 import pandas
 
 from .cmd_util import shell_exec, QriClientError
+import requests
 from subprocess import Popen, PIPE
 
 
@@ -47,7 +48,7 @@ class LocalQriBinaryRepo(object):
             raise QriClientError(err)
         return json.loads(result)
 
-    def pull_dataset(self):
+    def pull_dataset(self, ref):
         cmd = 'qri pull %s' % ref.human()
         result, err = shell_exec(cmd)
         if err:

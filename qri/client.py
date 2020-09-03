@@ -39,7 +39,7 @@ def add(refstr):
 
 def sql(query):
     """sql query run against a dataset"""
-    cmd = f'qri sql --format "json" "{query}"'
+    cmd = ['qri', 'sql', '--format', 'json', query]
     result, err = shell_exec(cmd)
     if err:
         raise QriClientError(err)

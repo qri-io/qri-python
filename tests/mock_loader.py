@@ -14,6 +14,9 @@ MOCK_DATASET_LIST = [
         'structure': {
             'format': 'csv',
         },
+        'readme': {
+            'scriptBytes': 'IyBIZWxsbwoKY29udGVudA=='
+        }
     },
     {
         'peername': 'other_peer',

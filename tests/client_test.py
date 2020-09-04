@@ -22,7 +22,13 @@ class ClientTests(unittest.TestCase):
     def test_client_get_readme(self):
         ds = client.get('me/first_dataset')
         readme = ds.readme
-        self.assertEqual(str(readme), '')
+        self.assertEqual(str(readme), 'None')
+        self.assertEqual(repr(readme), 'None')
+        # Get a dataset with a readme
+        ds = client.get('me/second_dataset')
+        readme = ds.readme
+        self.assertEqual(str(readme), '# Hello\n\ncontent')
+        self.assertEqual(repr(readme), 'Readme("# Hello\n\ncontent")')
 
 
 if __name__ == '__main__':

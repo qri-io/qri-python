@@ -22,7 +22,6 @@ class Meta(object):
 class Readme(object):
     def __init__(self, obj):
         # TODO(dustmop): Handle scriptPath
-        # TODO(dustmop): Handle null readme (should not be an error)
         if not obj or 'scriptBytes' not in obj:
             self.script = None
             return
@@ -33,8 +32,15 @@ class Readme(object):
             return ''
         return markdown.markdown(self.script)
 
+    def __str__(self):
+        if self.script is None:
+            return 'None'
+        return self.script
+
     def __repr__(self):
-        return self.script or ''
+        if self.script is None:
+            return 'None'
+        return 'Readme("%s")' % self
 
     def _repr_html_(self):
         return self.render()

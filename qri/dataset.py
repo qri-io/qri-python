@@ -34,7 +34,7 @@ class Readme(object):
         return markdown.markdown(self.script)
 
     def __repr__(self):
-        return self.script
+        return self.script or ''
 
     def _repr_html_(self):
         return self.render()

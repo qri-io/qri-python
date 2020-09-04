@@ -19,6 +19,11 @@ class ClientTests(unittest.TestCase):
         self.assertEqual(str(ds), expect)
         self.assertEqual(ds.structure.format, 'csv')
 
+    def test_client_get_readme(self):
+        ds = client.get('me/first_dataset')
+        readme = ds.readme
+        self.assertEqual(str(readme), '')
+
 
 if __name__ == '__main__':
   unittest.main()

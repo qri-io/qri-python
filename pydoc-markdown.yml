@@ -1,0 +1,12 @@
+# https://pydoc-markdown.readthedocs.io/en/latest/docs/configuration/
+loaders:
+  - type: python
+processors:
+  - type: filter
+  - type: smart
+  - type: crossref
+renderer:
+  type: markdown
+  insert_header_anchors: false # including anchors caused the header formatting to be off
+  config:
+    title: Qri Python

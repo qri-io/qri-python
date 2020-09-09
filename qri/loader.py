@@ -88,7 +88,25 @@ class CloudAPIRepo(object):
         raise NotImplementedError('CloudAPIRepo.list_dataset_objects')
 
     def load_body(self, ref, structure):
-        raise NotImplementedError('CloudAPIRepo.load_body_dataframe')
+        if structure.format != 'csv':
+            raise RuntimeError('Format "%s" not supported' % structure.format)
+        qparams = ['component=body', 'format=csv', 'download=true', 'all=true']
+        r = requests.get('https://api.qri.cloud/get/%s?%s' % (ref.human(), '&'.join(qparams)))
+        stream = io.StringIO(r.text)
+        columns = [e for e in structure.schema['items']['items']]
+        col_names = [c['title'] for c in columns]
+        types = {c['title']: pd_type(c['type']) for c in columns}
+        header = 0 if structure.format_config.get('headerRow') else None
+        df = None
+        try:
+            # Try to parse the csv using the schema
+            df = pandas.read_csv(stream, header=header, names=col_names,
+                                 dtype=types)
+        except (TypeError, ValueError):
+            # If pandas encountered parse errors, reparse without datatypes
+            stream = io.StringIO(r.text)
+            df = pandas.read_csv(stream, header=header, names=col_names)
+        return df
 
 
 def from_json(json_text):

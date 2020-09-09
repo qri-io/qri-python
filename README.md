@@ -9,7 +9,7 @@
  ╚══▀▀═╝ ╚═╝  ╚═╝╚═╝
 ```
 
-qri python client
+Python client for qri ("query")
 
 
 # Installation
@@ -18,15 +18,29 @@ qri python client
 pip install qri
 ```
 
+# About
+
+Python wrapper to enable usage of [qri](https://qri.io/), the dataset toolchain. Can
+either use a locally installed qri command-line program to work with your local repository,
+or can directly get datasets from the [Qri Cloud](https://qri.cloud).
+
+Dataset objects returned by this library have the components that exist in the
+[standard qri model](https://qri.io/docs/dataset-components/overview). The body is returned
+as a Pandas DataFrame in order to easily integrate with other data science systems, like
+Jupyter Notebook.
+
 # Usage
+
+The following examples assume you have the latest release of the qri command-line client
+installed. You can get this from https://github.com/qri-io/qri/releases
 
 ```
 import qri
 ```
 
 ```
-# Add a dataset from cloud to your repository
-$ qri.add("b5/world_bank_population")
+# Pull a dataset from cloud and add it to your repository
+$ qri.pull("b5/world_bank_population")
 ```
 > Fetching from registry...
 >

@@ -29,7 +29,8 @@ def pull(refstr):
     ref = dsref.parse_ref(refstr)
     print('Fetching from registry...')
     text = loader.instance().pull_dataset(ref)
-    return 'Pulled %s: %s' % (ref, text)
+    print('Pulled %s: %s' % (ref, text))
+    return None
 
 
 def add(refstr):

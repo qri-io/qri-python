@@ -53,6 +53,29 @@ class Structure(object):
     def __repr__(self):
         r = build_repr(self)
         return 'Structure(%s)' % r
+    
+    def _repr_html_(self):
+      str = """<table>
+      <thead>
+        <th></th><td>title</td><td>type</td><td>description</td>
+      </thead>
+      <tbody>"""
+      for idx, it in enumerate(self.schema['items']['items']):
+          title = ""
+          if 'title' in it:
+             title = it['title']
+          description = ""
+          if 'description' in it:
+              description = it['description']
+          
+          str = str + "<tr><th>{i}</th><td>{title}</td><td>{type}</td><td>{description}</td></tr>".format(
+              i=idx,
+              title=title,
+              type=it['type'],
+              description=description)
+      str = str + "</tbody></table>"
+      return str
+
 
 
 class Commit(object):
@@ -149,7 +172,30 @@ class Dataset(object):
         return 'Dataset("%s")' % self.human_ref()
 
     def _repr_html_(self):
-        return '<code>Dataset("%s")</code>' % self.human_ref()
+        title = self.human_ref()
+        meta = self.meta_component
+        if meta is None:
+            meta = Meta({
+                "title": "untitled dataset",
+                "description": "",
+            })
+
+        return """<h2>{meta.title}</h2>
+        <p>{meta.description}</p>
+        <br />
+        <table>
+            <thead>
+               <tr><td>records</td><td>last update</td><td>path</td><tr>
+            <thead>
+            <tbody>
+               <tr><th>{structure.entries}</th><th>{commit.timestamp}</th><th>{path}</th><tr>
+            <tbody>
+        <table>
+        """.format(
+            path=self.path, 
+            meta=meta, 
+            commit=self.commit_component, 
+            structure=self.structure_component)
 
 
 class DatasetList(list):

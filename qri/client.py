@@ -22,8 +22,11 @@ def list():
   return datasets
 
 
-def get(ref):
+def get(ref, autofetch=True):
   """get a dataset in the repository by reference"""
+  if autofetch:
+    if ref not in str(list()):
+      add(ref)
   cmd = 'qri get --format json %s' % ref
   result, err = shell_exec(cmd)
   if err:

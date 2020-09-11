@@ -55,6 +55,65 @@ class Structure(object):
         r = build_repr(self)
         return 'Structure(%s)' % r
 
+    def _repr_html_(self):
+        # TODO - look at the fuller schema of schema and format config in golang
+
+        def render_schema_node(node):
+            if node['type'] == 'array' and isinstance(node['items'], list):
+                return """<table>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Type</th>
+                </tr>
+                """ + "".join(render_schema_node(item) for item in node['items']) + "</table>" # TODO header?
+            elif node['type'] == 'array' and isinstance(node['items'], dict):
+                return "<table>" + render_schema_node(node['items']) + "</table>" # TODO header? Call this a nullop? Or what?
+            else:
+                return f"""<tr>
+                    <td><code>{node['title']}</code></td>
+                    <td><em>{node['type']}</em></td>
+                </tr>"""
+
+        return f"""<table>
+            <tr>
+                <td><b>Checksum</b></td>
+                <td><code>{self.checksum}</code></td>
+            </tr>
+            <tr>
+                <td><b>Depth</b></td>
+                <td>{self.depth}</td>
+            </tr>
+            <tr>
+                <td><b>Entries</b></td>
+                <td>{self.entries}</td>
+            </tr>
+            <tr>
+                <td><b>Format</b></td>
+                <td>{self.format}</td>
+            </tr>
+            <tr>
+                <td><b>Format Config</b></td>
+                <td><table>
+                    <tr>
+                        <td><b>Header Row:</b></td>
+                        <td>{self.format_config['headerRow']}</td>
+                    </tr>
+                    <tr>
+                        <td><b>Lazy Quotes:</b></td>
+                        <td>{self.format_config['lazyQuotes']}</td>
+                    </tr>
+                </table></td>
+            </tr>
+            <tr>
+                <td><b>Lenth</b></td>
+                <td>{self.length}</td>
+            </tr>
+            <tr>
+                <td><b>Schema</b></td>
+                <td>{render_schema_node(self.schema)}</td>
+            </tr>
+        </table> """
+
 
 class Commit(object):
     def __init__(self, obj):

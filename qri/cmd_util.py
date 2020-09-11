@@ -39,5 +39,6 @@ def strip_color(colored_text):
 
 class QriClientError(RuntimeError):
     def __init__(self, err_string):
-        clean_err_string = strip_color(err_string.decode('utf-8'))
-        super(QriClientError, self).__init__(clean_err_string)
+        if isinstance(err_string, bytes):
+            err_string = strip_color(err_string.decode('utf-8'))
+        super(QriClientError, self).__init__(err_string)

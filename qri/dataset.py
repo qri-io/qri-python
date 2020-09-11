@@ -105,7 +105,7 @@ class Structure(object):
                 </table></td>
             </tr>
             <tr>
-                <td><b>Lenth</b></td>
+                <td><b>Length</b></td>
                 <td>{self.length}</td>
             </tr>
             <tr>

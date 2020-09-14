@@ -1,4 +1,3 @@
-import re
 import shlex
 from subprocess import Popen, PIPE
 import sys
@@ -28,17 +27,3 @@ def shell_exec(command, cwd=None):
         sys.exit(1)
     except BaseException as e:
         raise e
-
-
-def strip_color(colored_text):
-    """strips color characters to return plaintext for when the
-       global color flag cannot be overriden"""
-    ansi_escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
-    return ansi_escape.sub('', colored_text)
-
-
-class QriClientError(RuntimeError):
-    def __init__(self, err_string):
-        if isinstance(err_string, bytes):
-            err_string = strip_color(err_string.decode('utf-8'))
-        super(QriClientError, self).__init__(err_string)

@@ -1,6 +1,6 @@
 import re
 
-from .cmd_util import QriClientError
+from . import error
 
 
 class Ref(object):
@@ -19,9 +19,9 @@ class Ref(object):
 
 
 def parse_ref(s):
-    m = re.match(r'([a-z][a-z0-9_-]*)/([a-z][a-z0-9_-]*)$', s)
+    m = re.match(r'^([a-z][a-z0-9_-]*)/([a-z][a-z0-9_-]*)$', s)
     if m:
         username = m.group(1)
         name = m.group(2)
         return Ref(username, name)
-    raise QriClientError('Could not parse reference "{}"'.format(s))
+    raise error.QriClientError('Could not parse reference "{}"'.format(s))

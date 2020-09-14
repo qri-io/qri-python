@@ -1,5 +1,4 @@
-from qri import client
-from qri import loader
+from qri import client, loader
 import mock_loader
 import unittest
 

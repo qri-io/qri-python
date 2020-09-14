@@ -2,10 +2,7 @@
 
 """Client for interacting with qri repositories"""
 
-from .cmd_util import shell_exec, QriClientError
-from . import dataset
-from . import dsref
-from . import loader
+from . import cmd_util, dataset, dsref, error, loader
 
 
 def list(username=None):
@@ -41,7 +38,7 @@ def add(refstr):
 def sql(query):
     """sql query run against a dataset"""
     cmd = ['qri', 'sql', '--format', 'json', query]
-    result, err = shell_exec(cmd)
+    result, err = cmd_util.shell_exec(cmd)
     if err:
-        raise QriClientError(err)
+        raise error.QriClientError(err)
     return loader.from_json(result)

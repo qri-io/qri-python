@@ -3,7 +3,7 @@ import io
 import json
 import pandas
 
-from .cmd_util import shell_exec, QriClientError
+from . import cmd_util, error
 import requests
 from subprocess import Popen, PIPE
 
@@ -34,34 +34,34 @@ def set_instance(obj):
 class LocalQriBinaryRepo(object):
     def get_dataset_object(self, ref):
         cmd = 'qri get --format json %s' % ref.human()
-        result, err = shell_exec(cmd)
+        result, err = cmd_util.shell_exec(cmd)
         if err:
-            raise QriClientError(err)
+            raise error.QriClientError(err)
         return json.loads(result)
 
     def list_dataset_objects(self, username=None):
         if username is not None:
-            raise QriClientError('listing with username not supported')
+            raise error.QriClientError('listing with username not supported')
         cmd = 'qri list --format json'
-        result, err = shell_exec(cmd)
+        result, err = cmd_util.shell_exec(cmd)
         if err:
-            raise QriClientError(err)
+            raise error.QriClientError(err)
         return json.loads(result)
 
     def pull_dataset(self, ref):
         cmd = 'qri pull %s' % ref.human()
-        result, err = shell_exec(cmd)
+        result, err = cmd_util.shell_exec(cmd)
         if err:
-            raise QriClientError(err)
+            raise error.QriClientError(err)
         return result
 
     def load_body(self, ref, structure):
         if structure.format != 'csv':
             raise RuntimeError('Format "%s" not supported' % structure.format)
         cmd = 'qri get body %s' % ref.human()
-        result, err = shell_exec(cmd)
+        result, err = cmd_util.shell_exec(cmd)
         if err:
-            raise QriClientError(err)
+            raise error.QriClientError(err)
         stream = io.StringIO(str(result, 'utf8'))
         columns = [e for e in structure.schema['items']['items']]
         col_names = [c['title'] for c in columns]

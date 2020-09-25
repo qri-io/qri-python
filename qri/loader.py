@@ -127,4 +127,6 @@ def pd_type(t):
         return 'string'
     elif t == 'bool':
         return 'bool'
+    elif t == 'array':
+        return 'array'
     raise RuntimeError('Unknown type: "%s"' % t)

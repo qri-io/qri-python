@@ -3,12 +3,12 @@ from qri import loader
 import mock_loader
 import unittest
 
-# TODO - move these to a better place?
+
 LIST_OBJ = {
-    'username': 'me',
-    'profileID': 'Qm.profileID',
+    'username': 'peer',
+    'profileID': 'QmProfileID',
     'name': 'first_dataset',
-    'path': '/ipfs/Qm.path',
+    'path': '/ipfs/QmPath',
     'bodySize': 1,
     'bodyRows': 2,
     'numErrors': 3,
@@ -18,9 +18,9 @@ LIST_OBJ = {
 }
 
 GET_OBJ = {
-    "bodyPath": "/ipfs/Qm.bodyPath",
+    "bodyPath": "/ipfs/QmBodyPath",
     "commit": {
-        "author": {"id": "Qm.commit.author.id"},
+        "author": {"id": "QmCommitAuthorId"},
         "message": "commit.message",
         "timestamp": "2020-01-02T03:04:05.124963898Z",
     },
@@ -29,14 +29,14 @@ GET_OBJ = {
         "keywords": ["meta.keyword1", "meta.keyword2"],
     },
     "name": "first_dataset",
-    "path": "/ipfs/Qm.path",
-    "peername": "me",
-    "previousPath": "/ipfs/Qm.previousPath",
+    "path": "/ipfs/QmPath",
+    "peername": "peer",
+    "previousPath": "/ipfs/QmPreviousPath",
     "readme": {
         "scriptBytes": "VEVTVCBSRUFETUUK",
     },
     "structure": {
-        "checksum": "Qm.structure.checksum",
+        "checksum": "QmStructureChecksum",
         "entries": 3,
         "format": "csv",
         "schema": {
@@ -57,29 +57,26 @@ class DatasetTests(unittest.TestCase):
     def test_init_from_list(self):
         loader.set_instance(mock_loader.DatasetMockLoader())
         ds = dataset.Dataset(LIST_OBJ)
-        self.assertEqual(ds.username, 'me')
+        self.assertEqual(ds.username, 'peer')
         self.assertEqual(ds.name, 'first_dataset')
-        self.assertEqual(ds.profile_id, 'Qm.profileID')
-        self.assertEqual(ds.path, '/ipfs/Qm.path')
+        self.assertEqual(ds.profile_id, 'QmProfileID')
+        self.assertEqual(ds.path, '/ipfs/QmPath')
         self.assertFalse(ds._is_populated)
 
     def test_init_from_get(self):
         loader.set_instance(mock_loader.DatasetMockLoader())
         ds = dataset.Dataset(GET_OBJ)
-        self.assertEqual(ds.username, 'me')
+        self.assertEqual(ds.username, 'peer')
         self.assertEqual(ds.name, 'first_dataset')
-        self.assertEqual(ds.path, '/ipfs/Qm.path')
+        self.assertEqual(ds.path, '/ipfs/QmPath')
 
-        self.assertEqual(ds.body_path_value, "/ipfs/Qm.bodyPath")
-        self.assertEqual(ds.previous_path_value, "/ipfs/Qm.previousPath")
+        self.assertEqual(ds.body_path_value, "/ipfs/QmBodyPath")
+        self.assertEqual(ds.previous_path_value, "/ipfs/QmPreviousPath")
 
         # Checking a subset of the possible fields for brevity
 
-        # TODO - should I test every field? I realized it would get pretty verbose but I can.
-        # I figured I'd test set_fields and move on.
-        # However if you want a super verbose and thorough comparison I can do that.
         self.assertIsInstance(ds.commit_component, dataset.Commit)
-        self.assertEqual(ds.commit_component.author, {"id": "Qm.commit.author.id"})
+        self.assertEqual(ds.commit_component.author, {"id": "QmCommitAuthorId"})
         self.assertEqual(ds.commit_component.message, "commit.message")
         self.assertEqual(ds.commit_component.timestamp, "2020-01-02T03:04:05.124963898Z")
 
@@ -110,7 +107,7 @@ class DatasetTests(unittest.TestCase):
 
     def test_populate(self):
         loader.set_instance(mock_loader.DatasetMockLoader(get_responses={
-            'me/first_dataset': GET_OBJ
+            'peer/first_dataset': GET_OBJ
         }))
         ds = dataset.Dataset(LIST_OBJ)
         self.assertFalse(ds._is_populated)
@@ -129,7 +126,7 @@ class DatasetTests(unittest.TestCase):
 
     def test_body(self):
         loader.set_instance(mock_loader.DatasetMockLoader(get_body_responses={
-            'me/first_dataset': 'dataframe standin'
+            'peer/first_dataset': 'dataframe standin'
         }))
         ds = dataset.Dataset(GET_OBJ)
         self.assertIsNone(ds.body_component)

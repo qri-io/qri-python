@@ -37,6 +37,12 @@ class LocalQriBinaryRepo(object):
         result, err = cmd_util.shell_exec(cmd)
         if err:
             raise error.QriClientError(err)
+        # NOTE: Work-around for auto-pull outputting an info message to stdout
+        if result.startswith('pulling '):
+            # There is a sentence about pulling, then the json data starting
+            # with the opening brace. Trim everything before that first brace
+            pos = result.find('{')
+            result = result[pos:]
         return json.loads(result)
 
     def list_dataset_objects(self, username=None):

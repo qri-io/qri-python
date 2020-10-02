@@ -21,6 +21,8 @@ def shell_exec(command, cwd=None):
             # This probably won't work forever, but fits most of our current
             # use cases.
             err = None
+        if isinstance(stdout, bytes):
+            stdout = stdout.decode('utf-8')
         return stdout, err
     except FileNotFoundError:
         sys.stderr.write("""qri command-line binary not found. It is either not installed, or PATH needs to be assigned. Please get the latest release from https://github.com/qri-io/qri, then run this command again.\n""")

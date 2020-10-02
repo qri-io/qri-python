@@ -2,7 +2,6 @@ import markdown
 
 from . import dsref
 from . import loader
-from . import version_info
 from .util import set_fields, build_repr
 
 
@@ -66,16 +65,32 @@ class Commit(object):
         return 'Commit(%s)' % r
 
 
+def is_from_list(obj):
+    version_info_fields = ['bodySize', 'bodyRows', 'bodyFormat', 'numErrors', 'commitTime']
+    return bool(set(obj) & set(version_info_fields))
+
+
 class Dataset(object):
     def __init__(self, obj):
         # Fields that are always present
         set_fields(self, obj, ['username', 'name', 'profileID', 'path'])
         if self.username is None and 'peername' in obj:
             self.username = obj.get('peername')
-        # Fields returned by `get` commands
-        set_fields(self, obj, ['bodyPath', 'previousPath'])
-        # Version info
-        self.versionInfo = self._build_version_info(obj)
+
+        self._is_populated = False
+        if not is_from_list(obj):
+            self._populate(obj)
+
+    def _ensure_populated(self):
+        if self._is_populated:
+            return
+        ref = dsref.Ref(self.username, self.name)
+        self._populate(loader.instance().get_dataset_object(ref))
+
+    def _populate(self, obj):
+        self.body_path_value = obj.get('bodyPath')
+        self.previous_path_value = obj.get('previousPath')
+
         # Subcomponents
         self.commit_component = Commit(obj.get('commit'))
         self.meta_component = Meta(obj.get('meta'))
@@ -83,33 +98,41 @@ class Dataset(object):
         self.structure_component = Structure(obj.get('structure'))
         self.body_component = None
 
-    def _build_version_info(self, obj):
-        info = version_info.VersionInfo(obj)
-        # TODO(dustmop): Remove me after this typo is fixed in qri core
-        if 'bodyFromat' in obj:
-            info.body_format = obj.get('bodyFromat')
-        return info
+        self._is_populated = True
+
+    @property
+    def body_path(self):
+        self._ensure_populated()
+        return self.body_path_value
+
+    @property
+    def previous_path(self):
+        self._ensure_populated()
+        return self.previous_path_value
 
     @property
     def meta(self):
+        self._ensure_populated()
         return self.meta_component
 
     @property
     def commit(self):
+        self._ensure_populated()
         return self.commit_component
 
     @property
     def readme(self):
+        self._ensure_populated()
         return self.readme_component
 
     @property
     def structure(self):
+        self._ensure_populated()
         return self.structure_component
 
     @property
     def body(self):
-        if self.structure_component is None:
-            raise RuntimeError('Cannot read body without structure')
+        self._ensure_populated()
         if self.structure.format != 'csv':
             raise RuntimeError('Only csv body format is supported')
         if self.body_component is None:

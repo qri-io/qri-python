@@ -91,7 +91,8 @@ class CloudAPIRepo(object):
         if structure.format != 'csv':
             raise RuntimeError('Format "%s" not supported' % structure.format)
         qparams = ['component=body', 'format=csv', 'download=true', 'all=true']
-        r = requests.get('https://api.qri.cloud/get/%s?%s' % (ref.human(), '&'.join(qparams)))
+        r = requests.get('https://api.qri.cloud/get/%s?%s' %
+                         (ref.human(), '&'.join(qparams)))
         stream = io.StringIO(r.text)
         columns = [e for e in structure.schema['items']['items']]
         col_names = [c['title'] for c in columns]

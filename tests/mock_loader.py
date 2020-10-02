@@ -48,11 +48,13 @@ class MockLoader(object):
             raise RuntimeError('dataset ref not found: "{}"'.format(ref))
         return MOCK_DATASET_LIST[index]
 
-class DatasetMockLoader(object): # TODO - better name and place
-    def __init__(self, list_response=None, get_responses=None, get_body_responses=None):
+
+class SettableLoader(object):
+    def __init__(self, list_response=None, get_responses=None,
+                 body_responses=None):
         self.list_response = list_response
         self.get_responses = get_responses or {}
-        self.get_body_responses = get_body_responses or {}
+        self.body_responses = body_responses or {}
 
     def list_dataset_objects(self, username=None):
         if self.list_response is None:
@@ -67,6 +69,17 @@ class DatasetMockLoader(object): # TODO - better name and place
 
     def load_body(self, ref, structure):
         try:
-            return self.get_body_responses[ref.human()]
+            return self.body_responses[ref.human()]
         except KeyError:
             raise RuntimeError('Got unexpected call to load_body')
+
+
+class NullLoader(object):
+    def list_dataset_objects(self, username=None):
+        raise RuntimeError('Cannot list_dataset_objects with NullLoader')
+
+    def get_dataset_object(self, username=None):
+        raise RuntimeError('Cannot get_dataset_object with NullLoader')
+
+    def load_body(self, username=None):
+        raise RuntimeError('Cannot load_body with NullLoader')

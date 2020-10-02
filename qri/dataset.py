@@ -65,9 +65,10 @@ class Commit(object):
         return 'Commit(%s)' % r
 
 
-def is_from_list(obj):
-    version_info_fields = ['bodySize', 'bodyRows', 'bodyFormat', 'numErrors', 'commitTime']
-    return bool(set(obj) & set(version_info_fields))
+def is_short_info(obj):
+    """Return whether the object is a short representation of a dataset"""
+    fields = ['bodySize', 'bodyRows', 'bodyFormat', 'numErrors', 'commitTime']
+    return bool(set(obj) & set(fields))
 
 
 class Dataset(object):
@@ -78,7 +79,7 @@ class Dataset(object):
             self.username = obj.get('peername')
 
         self._is_populated = False
-        if not is_from_list(obj):
+        if not is_short_info(obj):
             self._populate(obj)
 
     def _ensure_populated(self):

@@ -54,6 +54,21 @@ class Structure(object):
         r = build_repr(self)
         return 'Structure(%s)' % r
 
+    def _repr_html_(self):
+        text = """<table>
+    <thead>
+        <th></th><td>title</td><td>type</td><td>description</td>
+    </thead>
+    <tbody>"""
+        for n, it in enumerate(self.schema['items']['items']):
+            type = it.get('type', '')
+            title = it.get('title', '')
+            desc = it.get('description', '')
+            tmpl = '<tr><th>{n}</th><td>{title}</td><td>{type}</td><td>{desc}</td></tr>'
+            text += tmpl.format(n=n, title=title, type=type, desc=desc)
+        text += '</tbody></table>'
+        return text
+
 
 class Commit(object):
     def __init__(self, obj):
@@ -149,7 +164,24 @@ class Dataset(object):
         return 'Dataset("%s")' % self.human_ref()
 
     def _repr_html_(self):
-        return '<code>Dataset("%s")</code>' % self.human_ref()
+        meta = self.meta_component
+        title = meta.title or 'untitled dataset'
+        desc = meta.description or ''
+        tmpl = """<h2>{title}</h2>
+    <p>{desc}</p>
+    <br />
+    <table>
+        <thead>
+           <tr><td>records</td><td>last update</td><td>path</td><tr>
+        </thead>
+        <tbody>
+           <tr><th>{structure.entries}</th><th>{commit.timestamp}</th><th>{path}</th><tr>
+        </tbody>
+    </table>"""
+        text = tmpl.format(path=self.path, title=title, desc=desc,
+                           commit=self.commit_component,
+                           structure=self.structure_component)
+        return text
 
 
 class DatasetList(list):

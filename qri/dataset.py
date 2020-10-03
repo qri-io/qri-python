@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import markdown
 
 from . import dsref
@@ -96,6 +98,8 @@ class Dataset(object):
         self._is_populated = False
         if not is_short_info(obj):
             self._populate(obj)
+        else:
+            self.title_data = obj.get('metaTitle')
 
     def _ensure_populated(self):
         if self._is_populated:
@@ -130,6 +134,13 @@ class Dataset(object):
     def meta(self):
         self._ensure_populated()
         return self.meta_component
+
+    @property
+    def title(self):
+        if hasattr(self, 'title_data'):
+            return self.title_data # avoid populate
+        else:
+            return self.meta.title # calls populate
 
     @property
     def commit(self):
@@ -190,5 +201,28 @@ class DatasetList(list):
         return '[%s]' % (content,)
 
     def _repr_html_(self):
-        content = ', '.join(['%s' % d for d in self])
-        return '<code>[%s]</code>' % (content,)
+        dss_by_user = defaultdict(list)
+        for ds in self:
+            dss_by_user[ds.username].append(ds)
+
+        rows = ""
+        for idx, (username, dss) in enumerate(dss_by_user.items()):
+            for ds in dss:
+                meta_title = ds.title or '(none)'
+                if len(meta_title) > 50:
+                    meta_title = meta_title[:50] + "..."
+                rows += f"""<tr>
+                        <td><b>{username}</b></td>
+                        <td>{meta_title}</td>
+                        <td style='text-align:left'><code>{ds.human_ref()}</code></td>
+                    </tr>"""
+                username = '' # Only display the username once
+
+        return f"""<table>
+            <thead>
+                <td>Username</td>
+                <td>Title</td>
+                <td style='text-align:left'>Dataset Ref</td>
+            </thead>
+            <tbody>{rows}</tbody>
+        </table>"""

@@ -11,7 +11,7 @@ with open('README.md', 'r') as fp:
 
 setuptools.setup(
     name='qri',
-    version='0.1.4',
+    version='0.1.5',
     author='Dustin Long',
     author_email='dustmop@qri.io',
     description='qri python client',

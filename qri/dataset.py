@@ -4,7 +4,7 @@ import markdown
 from . import dsref
 from . import loader
 from . import version_info
-from .util import set_fields, build_repr, max_len
+from .util import set_fields, build_repr, ensure_string, max_len
 
 
 NO_META_TITLE = '(untitled dataset)'
@@ -29,7 +29,8 @@ class Readme(object):
         if not obj or 'scriptBytes' not in obj:
             self.script = None
             return
-        self.script = loader.base64_decode(obj['scriptBytes']).decode('utf-8')
+        text = loader.base64_decode(obj['scriptBytes'])
+        self.script = ensure_string(text)
 
     def render(self):
         if self.script is None:
@@ -180,9 +181,8 @@ class Dataset(object):
         return 'Dataset("%s")' % self.human_ref()
 
     def _repr_html_(self):
-        meta = self.meta_component
-        title = meta.title or NO_META_TITLE
-        desc = meta.description or ''
+        title = self.meta_title or NO_META_TITLE
+        desc = self.meta.description or ''
         tmpl = """<h2>{title}</h2>
     <p>{desc}</p>
     <br />

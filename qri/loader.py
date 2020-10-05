@@ -3,7 +3,7 @@ import io
 import json
 import pandas
 
-from . import cmd_util, error
+from . import cmd_util, error, util
 import requests
 from subprocess import Popen, PIPE
 
@@ -68,7 +68,8 @@ class LocalQriBinaryRepo(object):
         result, err = cmd_util.shell_exec(cmd)
         if err:
             raise error.QriClientError(err)
-        stream = io.StringIO(str(result, 'utf8'))
+        result = util.ensure_string(result)
+        stream = io.StringIO(result)
         columns = [e for e in structure.schema['items']['items']]
         col_names = [c['title'] for c in columns]
         types = {c['title']: pd_type(c['type']) for c in columns}
@@ -80,7 +81,7 @@ class LocalQriBinaryRepo(object):
                                  dtype=types)
         except (TypeError, ValueError):
             # If pandas encountered parse errors, reparse without datatypes
-            stream = io.StringIO(str(result, 'utf8'))
+            stream = io.StringIO(util.ensure_string(result))
             df = pandas.read_csv(stream, header=header, names=col_names)
         return df
 

@@ -1,4 +1,5 @@
 import re
+from . import util
 
 
 ANSI_ESCAPE = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
@@ -12,7 +13,5 @@ def strip_color(colored_text):
 
 class QriClientError(RuntimeError):
     def __init__(self, err_string):
-        # Ensure the error text is a string, not simply bytes
-        if isinstance(err_string, bytes):
-            err_string = err_string.decode('utf-8')
+        err_string = util.ensure_string(err_string)
         super(QriClientError, self).__init__(strip_color(err_string))

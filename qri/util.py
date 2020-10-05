@@ -30,3 +30,11 @@ def max_len(text, n):
     if len(text) <= n:
         return text
     return text[:n - 3] + '...'
+
+
+def ensure_string(val):
+    if isinstance(val, str):
+        return val
+    elif isinstance(val, bytes):
+        return val.decode('utf-8')
+    return str(val)

@@ -37,6 +37,12 @@ class UtilTests(unittest.TestCase):
         self.assertEqual(util.max_len('apples', 6), 'apples')
         self.assertEqual(util.max_len('apples', 5), 'ap...')
 
+    def test_ensure_string(self):
+        self.assertEqual(util.ensure_string('apples'), 'apples')
+        self.assertEqual(util.ensure_string(b'apples'), 'apples')
+        self.assertEqual(util.ensure_string(['apples']), "['apples']")
+        self.assertEqual(util.ensure_string(None, 'None')
+
 
 if __name__ == '__main__':
   unittest.main()

@@ -92,7 +92,7 @@ class CloudAPIRepo(object):
         return json.loads(r.text)['data']['dataset']
 
     def list_dataset_objects(self, username=None):
-        raise NotImplementedError('CloudAPIRepo.list_dataset_objects')
+        raise error.CloudMissingAPIError('CloudAPIRepo.list_dataset_objects')
 
     def load_body(self, ref, structure):
         if structure.format != 'csv':

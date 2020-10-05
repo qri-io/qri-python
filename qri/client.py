@@ -7,7 +7,11 @@ from . import cmd_util, dataset, dsref, error, loader
 
 def list(username=None):
     """list datasets in the user's repository"""
-    objs = loader.instance().list_dataset_objects(username)
+    try:
+        objs = loader.instance().list_dataset_objects(username)
+    except error.CloudMissingAPIError as e:
+        cmd_util.write_missing_cloud_api()
+        return None
     datasets = dataset.DatasetList([dataset.Dataset(d) for d in objs])
     datasets.sort(key=lambda d: d.human_ref())
     return datasets

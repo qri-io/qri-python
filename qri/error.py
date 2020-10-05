@@ -11,7 +11,15 @@ def strip_color(colored_text):
     return ANSI_ESCAPE.sub('', colored_text)
 
 
-class QriClientError(RuntimeError):
+class QriClientError(Exception):
     def __init__(self, err_string):
         err_string = util.ensure_string(err_string)
         super(QriClientError, self).__init__(strip_color(err_string))
+
+
+class CloudMissingAPIError(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __str__(self):
+        return '{}: {}'.format(self.__class__.__name__, self.msg)

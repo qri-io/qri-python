@@ -41,7 +41,7 @@ class UtilTests(unittest.TestCase):
         self.assertEqual(util.ensure_string('apples'), 'apples')
         self.assertEqual(util.ensure_string(b'apples'), 'apples')
         self.assertEqual(util.ensure_string(['apples']), "['apples']")
-        self.assertEqual(util.ensure_string(None, 'None')
+        self.assertEqual(util.ensure_string(None), 'None')
 
 
 if __name__ == '__main__':

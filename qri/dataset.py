@@ -1,10 +1,13 @@
-from collections import defaultdict
-
+import collections
 import markdown
 
 from . import dsref
 from . import loader
-from .util import set_fields, build_repr
+from . import version_info
+from .util import set_fields, build_repr, max_len
+
+
+NO_META_TITLE = '(untitled dataset)'
 
 
 class Meta(object):
@@ -84,7 +87,8 @@ class Commit(object):
 
 def is_short_info(obj):
     """Return whether the object is a short representation of a dataset"""
-    fields = ['bodySize', 'bodyRows', 'bodyFormat', 'numErrors', 'commitTime']
+    fields = ['bodySize', 'bodyRows', 'bodyFormat', 'numErrors', 'metaTitle',
+              'commitTime']
     return bool(set(obj) & set(fields))
 
 
@@ -95,11 +99,13 @@ class Dataset(object):
         if self.username is None and 'peername' in obj:
             self.username = obj.get('peername')
 
+        self._info = None
         self._is_populated = False
-        if not is_short_info(obj):
-            self._populate(obj)
+
+        if is_short_info(obj):
+            self._info = version_info.VersionInfo(obj)
         else:
-            self.title_data = obj.get('metaTitle')
+            self._populate(obj)
 
     def _ensure_populated(self):
         if self._is_populated:
@@ -136,11 +142,10 @@ class Dataset(object):
         return self.meta_component
 
     @property
-    def title(self):
-        if hasattr(self, 'title_data'):
-            return self.title_data # avoid populate
-        else:
-            return self.meta.title # calls populate
+    def meta_title(self):
+        if self._info:
+            return self._info.meta_title
+        return self.meta.title
 
     @property
     def commit(self):
@@ -176,7 +181,7 @@ class Dataset(object):
 
     def _repr_html_(self):
         meta = self.meta_component
-        title = meta.title or 'untitled dataset'
+        title = meta.title or NO_META_TITLE
         desc = meta.description or ''
         tmpl = """<h2>{title}</h2>
     <p>{desc}</p>
@@ -201,22 +206,24 @@ class DatasetList(list):
         return '[%s]' % (content,)
 
     def _repr_html_(self):
-        dss_by_user = defaultdict(list)
+        curr_username = ''
+        rows = ''
+        # Assume datasets are sorted by human-friendly reference, which
+        # will group by username, then by dataset name.
         for ds in self:
-            dss_by_user[ds.username].append(ds)
-
-        rows = ""
-        for idx, (username, dss) in enumerate(dss_by_user.items()):
-            for ds in dss:
-                meta_title = ds.title or '(none)'
-                if len(meta_title) > 50:
-                    meta_title = meta_title[:50] + "..."
-                rows += f"""<tr>
-                        <td><b>{username}</b></td>
-                        <td>{meta_title}</td>
-                        <td style='text-align:left'><code>{ds.human_ref()}</code></td>
-                    </tr>"""
-                username = '' # Only display the username once
+            if ds.username != curr_username:
+                curr_username = ds.username
+                disp_username = ds.username
+            meta_title = max_len(ds.meta_title or NO_META_TITLE, 50)
+            rows += f"""<tr>
+                    <td><b>{disp_username}</b></td>
+                    <td>{meta_title}</td>
+                    <td style='text-align:left'>
+                        <code>{ds.human_ref()}</code>
+                    </td>
+                </tr>"""
+            # Only display the username once
+            disp_username = ''
 
         return f"""<table>
             <thead>

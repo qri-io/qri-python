@@ -24,3 +24,9 @@ def build_repr(inst):
         if val:
             accum.append('%r: %r' % (f, val))
     return '{' + ', '.join(accum) + '}'
+
+
+def max_len(text, n):
+    if len(text) <= n:
+        return text
+    return text[:n - 3] + '...'

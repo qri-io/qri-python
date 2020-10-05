@@ -21,6 +21,22 @@ class UtilTests(unittest.TestCase):
         self.assertEqual(component.b, 2)
         self.assertIsNone(component.c)
 
+    def test_build_repr(self):
+        class Subject(object):
+            def __init__(self):
+                self._fields = ['a', 'b', 'c']
+                self.a = 'apple'
+                self.b = 'berry'
+                self.c = 'cherry'
+        s = Subject()
+        self.assertEqual(util.build_repr(s),
+                         "{'a': 'apple', 'b': 'berry', 'c': 'cherry'}")
+
+    def test_max_len(self):
+        self.assertEqual(util.max_len('apples', 8), 'apples')
+        self.assertEqual(util.max_len('apples', 6), 'apples')
+        self.assertEqual(util.max_len('apples', 5), 'ap...')
+
 
 if __name__ == '__main__':
   unittest.main()

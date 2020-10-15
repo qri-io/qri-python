@@ -94,6 +94,9 @@ class CloudAPIRepo(object):
     def list_dataset_objects(self, username=None):
         raise error.CloudMissingAPIError('CloudAPIRepo.list_dataset_objects')
 
+    def pull_dataset(self, ref):
+        raise error.CloudMissingAPIError('CloudAPIRepo.pull_dataset')
+
     def load_body(self, ref, structure):
         if structure.format != 'csv':
             raise RuntimeError('Format "%s" not supported' % structure.format)

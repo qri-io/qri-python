@@ -10,7 +10,7 @@ def list(username=None):
     try:
         objs = loader.instance().list_dataset_objects(username)
     except error.CloudMissingAPIError as e:
-        cmd_util.write_missing_cloud_api()
+        cmd_util.write_missing_cloud_api('list')
         return None
     datasets = dataset.DatasetList([dataset.Dataset(d) for d in objs])
     datasets.sort(key=lambda d: d.human_ref())
@@ -29,7 +29,11 @@ def pull(refstr):
     """pull a remote dataset from the registry to the user's repository"""
     ref = dsref.parse_ref(refstr)
     print('Fetching from registry...')
-    text = loader.instance().pull_dataset(ref)
+    try:
+        text = loader.instance().pull_dataset(ref)
+    except error.CloudMissingAPIError as e:
+        cmd_util.write_missing_cloud_api('pull')
+        return None
     print('Pulled %s: %s' % (ref, text))
     return None
 

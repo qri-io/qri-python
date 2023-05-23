@@ -22,7 +22,7 @@ setuptools.setup(
     install_requires=[
         'pandas==1.0.0',
         'Markdown==3.2.2',
-        'requests==2.24.0',
+        'requests==2.31.0',
     ],
     classifiers=[
         'Programming Language :: Python',
